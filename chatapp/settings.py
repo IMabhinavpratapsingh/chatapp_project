@@ -26,7 +26,7 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]  # Render pe sab allow karne ke liye; later specific domain de sakte ho
 
-
+LOGIN_URL = 'login'
 # ========= Installed apps =========
 
 INSTALLED_APPS = [
