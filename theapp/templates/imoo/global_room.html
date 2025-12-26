@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatApp • Global Room</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+
+        html, body{
+            height:100%;
+        }
+        body{
+            font-family:'Inter',sans-serif;
+            color:#e5e7eb;
+            background:url("https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+                    no-repeat center center fixed;
+            background-size:cover;
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+        }
+
+        /* NAVBAR */
+        .nav{
+            height:60px;
+            padding:0 1.3rem;
+            border-bottom:1px solid #1f2937;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            background:radial-gradient(circle at top left,#020617,#000);
+            flex-shrink:0;
+        }
+        .nav-title{
+            font-weight:700;
+            font-size:1.35rem;
+        }
+        .nav-title span{
+            background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+        }
+        .nav-user{
+            font-size:.85rem;
+            color:#9ca3af;
+        }
+        .nav-user strong{
+            color:#e5e7eb;
+        }
+
+        /* MAIN: sidebar + chat */
+        .main{
+            flex:1;
+            display:flex;
+            overflow:hidden;
+        }
+
+        /* LEFT: sidebar */
+        .sidebar{
+            width:190px;
+            background:linear-gradient(180deg,#020617cc 0%,#020617ee 60%,#020617cc 100%);
+            border-right:1px solid #111827;
+            padding:1rem;
+            display:flex;
+            flex-direction:column;
+            gap:1.5rem;
+            box-shadow:inset -1px 0 0 #111827;
+            overflow:hidden;
+        }
+        .section-title{
+            font-size:.8rem;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            color:#9ca3af;
+            margin-bottom:.4rem;
+        }
+        .room-card{
+            padding:.7rem .9rem;
+            border-radius:12px;
+            background:rgba(15,23,42,0.9);
+            border:1px solid rgba(148,163,184,0.25);
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .room-name{font-weight:600;font-size:.9rem}
+        .room-count{font-size:.8rem;color:#a1a1aa}
+        .sidebar ul{
+            list-style:none;
+            margin-top:.4rem;
+        }
+        .sidebar li{
+            margin-bottom:.35rem;
+        }
+        .sidebar li a{
+            font-size:.86rem;
+            color:#9ca3af;
+            text-decoration:none;
+            padding:.25rem .35rem;
+            border-radius:6px;
+            display:inline-flex;
+            align-items:center;
+            gap:.35rem;
+        }
+        .sidebar li a::before{
+            content:'';
+            width:7px;height:7px;
+            border-radius:999px;
+            background:#22c55e;
+        }
+
+        /* RIGHT background */
+        .chat-bg{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            background:rgba(2,6,23,0.6);
+            backdrop-filter:blur(4px);
+        }
+
+        /* Header */
+        .chat-header{
+            flex-shrink:0;
+            border-bottom:1px solid #111827;
+            padding:12px 0;
+            display:flex;
+            justify-content:flex-start;
+        }
+        .chat-header-inner{
+            max-width:700px;
+            width:100%;
+            padding-left:40px;
+            padding-right:10px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .room-title{font-weight:600}
+        .room-sub{font-size:.8rem;color:#9ca3af}
+
+        /* Messages */
+        .messages{
+            flex:1;
+            display:flex;
+            justify-content:flex-start;
+            padding:12px 0 12px 40px;
+            overflow-y:auto;
+        }
+        .messages-inner{
+            max-width:700px;
+            width:100%;
+            padding-right:10px;
+            padding-bottom:12px;
+        }
+        .msg-row{margin-bottom:.7rem}
+        .msg-meta{
+            font-size:.75rem;
+            color:#6b7280;
+            margin-bottom:.15rem;
+        }
+        .msg-meta span{
+            color:#7dd3fc;
+            font-weight:500;
+        }
+        .msg-bubble{
+            display:inline-block;
+            background:rgba(15,23,42,0.95);
+            border-radius:14px;
+            padding:.5rem .8rem;
+            font-size:.9rem;
+            border:1px solid rgba(148,163,184,0.3);
+            max-width:100%;
+            word-wrap:break-word;
+        }
+
+        /* Input */
+        .input-area{
+            flex-shrink:0;
+            padding:10px 0 14px 40px;
+            display:flex;
+            justify-content:flex-start;
+            border-top:1px solid #111827;
+            background:rgba(2,6,23,0.75);
+        }
+        .input-inner{
+            max-width:700px;
+            width:100%;
+            padding-right:10px;
+            display:flex;
+            gap:.6rem;
+            align-items:center;
+        }
+        .input-box{
+            flex:1;
+            background:#020617;
+            border-radius:999px;
+            padding:.5rem 1rem;
+            border:1px solid #374151;
+            display:flex;
+            align-items:center;
+        }
+        .input-box input{
+            flex:1;
+            background:transparent;
+            border:none;
+            outline:none;
+            color:#e5e7eb;
+            font-size:.9rem;
+        }
+        .send-btn{
+            border:none;
+            background:linear-gradient(135deg,#3b82f6,#06b6d4);
+            color:#fff;
+            padding:.5rem 1.2rem;
+            border-radius:999px;
+            font-size:.85rem;
+            font-weight:600;
+            cursor:pointer;
+        }
+
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+        @media (max-width:768px){
+            .main{flex-direction:column}
+            .sidebar{display:none}
+            .chat-header-inner,
+            .messages,
+            .input-area{
+                padding-left:16px;
+            }
+            .messages-inner,
+            .input-inner{
+                max-width:100%;
+            }
+        }
+
+        /* Fixed FABs (Home + AI Abhi) */
+        .fab-row{
+            position:fixed;
+            right:24px;
+            bottom:24px;
+            display:flex;
+            flex-direction:column;
+            gap:.4rem;
+            align-items:flex-end;
+            z-index:20;
+        }
+        .fab-buttons{
+            display:flex;
+            gap:.6rem;
+        }
+        .fab{
+            width:64px;
+            height:64px;
+            border-radius:999px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:30px;
+            text-decoration:none;
+            box-shadow:0 16px 32px rgba(0,0,0,0.7);
+            cursor:pointer;
+        }
+        .fab-home{
+            background:transparent;
+            padding:0;
+            border:none;
+        }
+        .fab-home-inner{
+            width:64px;
+            height:64px;
+            border-radius:999px;
+            background:url("https://images.unsplash.com/vector-1744442860865-0765bab8753c?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+                     center/cover no-repeat;
+            box-shadow:0 16px 32px rgba(0,0,0,0.7);
+        }
+        .fab-aiabhi{
+            background:transparent;
+            padding:0;
+            border:none;
+        }
+        .fab-aiabhi-inner{
+            width:64px;
+            height:64px;
+            border-radius:999px;
+            background:url("https://plus.unsplash.com/premium_vector-1689096612167-14df9deb605e?q=80&w=2360&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+                     center/cover no-repeat;
+            box-shadow:0 16px 32px rgba(0,0,0,0.7);
+        }
+        .fab-labels{
+            display:flex;
+            justify-content:center;
+            gap:2.3rem;
+            font-size:.8rem;
+            font-weight:500;
+            color:#f9fafb;
+            text-shadow:0 2px 6px rgba(0,0,0,0.9);
+            margin-top:.2rem;
+            margin-right:.3rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav">
+    <div class="nav-title">Chat<span>App</span> • Global Room</div>
+    <div class="nav-user">
+        Logged in as <strong>{{ user.username|default:"guest" }}</strong>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- LEFT: rooms + users -->
+    <aside class="sidebar">
+        <div>
+            <div class="section-title">Rooms</div>
+            <div class="room-card">
+                <div class="room-name"># Global</div>
+                <div class="room-count" id="room-count">online</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">Users</div>
+            <ul>
+            {% for u in users %}
+                {% if u != user %}
+                <li>
+                    <a href="{% url 'private_chat' u.username %}">{{ u.username }}</a>
+                </li>
+                {% endif %}
+            {% empty %}
+                <li style="color:#6b7280;font-size:.85rem;">No users.</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </aside>
+
+    <!-- RIGHT: chat area -->
+    <section class="chat-bg">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="chat-header-inner">
+                <div>
+                    <div class="room-title"># Global</div>
+                    <div class="room-sub">Public room • Yo guys you can chat here!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages" id="messages">
+            <div class="messages-inner" id="messages-inner">
+                <div class="msg-row">
+                    <div class="msg-meta"><span>system</span> • welcome</div>
+                    <div class="msg-bubble">Abhinav presents chat app !! 👋</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="input-area">
+            <div class="input-inner">
+                <div class="input-box">
+                    <input id="msg-input" type="text" placeholder="Message #Global…">
+                </div>
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Fixed bottom-right FABs -->
+<div class="fab-row">
+    <div class="fab-buttons">
+        <!-- Home -->
+        <a href="{% url 'home' %}" class="fab fab-home" title="Home">
+            <div class="fab-home-inner"></div>
+        </a>
+        <!-- AI Abhi (AI doubt page) -->
+        <a href="{% url 'ai_doubt' %}" class="fab fab-aiabhi" title="AI ABHI">
+            <div class="fab-aiabhi-inner"></div>
+        </a>
+    </div>
+    <div class="fab-labels">
+        <span>Home</span>
+        <span>AI Abhi</span>
+    </div>
+</div>
+
+<script>
+    const username = "{{ user.username|default:'guest' }}";
+
+    const chatSocket = new WebSocket(
+        (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+        + window.location.host
+        + '/ws/chat/global/'
+    );
+
+    chatSocket.onopen = function (e) {
+        console.log('WS OPEN', e);
+    };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const messagesInner = document.getElementById('messages-inner');
+
+        const row = document.createElement('div');
+        row.className = 'msg-row';
+        row.innerHTML = `
+            <div class="msg-meta"><span>${data.username}</span> • now</div>
+            <div class="msg-bubble">${data.message}</div>
+        `;
+        messagesInner.appendChild(row);
+
+        const messages = document.getElementById('messages');
+        messages.scrollTop = messages.scrollHeight;
+    };
+
+    chatSocket.onerror = function(e){
+        console.error('WS_ERROR:', e);
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly', e);
+    };
+
+    function sendMessage(){
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        if(!text) return;
+
+        chatSocket.send(JSON.stringify({
+            message: text,
+            username: username,
+        }));
+        input.value = '';
+    }
+
+    document.getElementById('msg-input').addEventListener('keyup', function(e){
+        if(e.key === 'Enter') sendMessage();
+    });
+</script>
+</body>
+</html>
