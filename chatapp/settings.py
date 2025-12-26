@@ -89,11 +89,12 @@ WSGI_APPLICATION = 'chatapp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_URL', '').split('/')[-1].split('?')[0],
+        'USER': os.getenv('DATABASE_URL', '').split('@')[-1].split(':')[0].split('//')[-1],
+        # Auto parse from DATABASE_URL (Render auto set karega)
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -137,3 +138,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
