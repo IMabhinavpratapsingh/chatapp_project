@@ -67,14 +67,17 @@ def signup(request):
 
     return render(request, 'imoo/signup.html')
 
+@login_required
 def get_room_name(user1, user2):
     users = sorted([user1.username, user2.username])
     return f"{users[0]}__{users[1]}"
 
+@login_required
 def global_chat(request):
     users = User.objects.exclude(id=request.user.id)
     return render(request, "imoo/global_room.html", {"users": users})
 
+@login_required
 def private_chat(request, username):
     other_user = get_object_or_404(User, username=username)
     room_name = get_room_name(request.user, other_user)
@@ -85,6 +88,7 @@ def private_chat(request, username):
     }
     return render(request, "imoo/private_room.html", ctx)
 
+@login_required
 @require_http_methods(["GET", "POST"])
 def ai_doubt_solver(request):
     if request.method == "POST":
